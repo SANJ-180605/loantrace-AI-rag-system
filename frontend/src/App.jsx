@@ -801,7 +801,9 @@ export default function App() {
                   <tbody className="divide-y divide-slate-800/50">
                     {session.covariance_matrix.matrix.map((row, idx) => (
                       <tr key={idx} className="hover:bg-slate-800/30 transition">
-                        <td className="py-3 px-3 font-semibold text-slate-200">{row.field}</td>
+                        <td className="py-3 px-3 font-semibold text-slate-200">
+                          {typeof row.field === 'string' ? row.field.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase()) : row.field}
+                        </td>
                         {session.covariance_matrix.doc_types.map((dt) => {
                           const cell = row.values[dt];
                           return (

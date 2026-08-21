@@ -1,6 +1,23 @@
 import math
 from typing import List, Dict, Any
 
+FIELD_LABEL_MAP = {
+    "borrower_name": "Borrower Name",
+    "borrower name": "Borrower Name",
+    "loan_amount": "Loan Amount",
+    "loan amount": "Loan Amount",
+    "interest_rate": "Interest Rate",
+    "interest rate": "Interest Rate",
+    "purchase_price": "Purchase Price",
+    "purchase price": "Purchase Price",
+    "down_payment": "Down Payment",
+    "down payment": "Down Payment",
+    "monthly_income": "Monthly Income",
+    "monthly income": "Monthly Income",
+    "wages_annual": "Annual Wages",
+    "wages annual": "Annual Wages",
+}
+
 def confidence_from_distance(distance: float) -> int:
     """
     Computes a percentage confidence score from semantic search distance.
@@ -52,9 +69,9 @@ def build_metadata_covariance_matrix(documents: List[Dict[str, Any]]) -> Dict[st
     """
     Layer 5: Trust Layer - Metadata Covariance Matrix (MCM) & Conflict Detector.
     Cross-checks extracted financial fields across all documents in the package (URLA 1003, LE, CD, W2, 1040, etc.)
-    Identifies inconsistencies, mismatches, or verified alignments.
+    Normalizes field keys so borrower_name and borrower name are treated identically.
     """
-    fields_to_track = [
+    canonical_fields = [
         "borrower_name",
         "loan_amount",
         "interest_rate",
@@ -68,14 +85,21 @@ def build_metadata_covariance_matrix(documents: List[Dict[str, Any]]) -> Dict[st
     matrix_rows = []
     conflicts_detected = []
     
-    for field in fields_to_track:
+    for field in canonical_fields:
+        display_label = FIELD_LABEL_MAP.get(field, field.replace("_", " ").title())
         row_values = {}
         distinct_vals = {}
         
         for doc in documents:
             d_type = doc["type"]
             extracted = doc.get("extracted_fields", {})
-            val = extracted.get(field)
+            
+            # Key normalization lookup: check field, field with space, field with underscore
+            val = (
+                extracted.get(field)
+                if extracted.get(field) is not None
+                else extracted.get(field.replace("_", " "))
+            )
             
             if val is not None:
                 row_values[d_type] = {
@@ -83,7 +107,6 @@ def build_metadata_covariance_matrix(documents: List[Dict[str, Any]]) -> Dict[st
                     "doc_name": doc["name"],
                     "pages": doc["pages"]
                 }
-                # Format value string for comparison
                 val_key = str(val).strip().lower()
                 if val_key not in distinct_vals:
                     distinct_vals[val_key] = []
@@ -93,7 +116,8 @@ def build_metadata_covariance_matrix(documents: List[Dict[str, Any]]) -> Dict[st
         
         if has_conflict:
             conflicts_detected.append({
-                "field": field,
+                "field": display_label,
+                "raw_field": field,
                 "values": [
                     {"value": k, "sources": [d["doc"] for d in v], "pages": [p for d in v for p in d["pages"]]}
                     for k, v in distinct_vals.items()
@@ -101,7 +125,8 @@ def build_metadata_covariance_matrix(documents: List[Dict[str, Any]]) -> Dict[st
             })
 
         matrix_rows.append({
-            "field": field,
+            "field": display_label,
+            "raw_field": field,
             "values": row_values,
             "has_conflict": has_conflict
         })
