@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Layer 3: Embedding & FAISS - LoanTrace AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    :root {
+      --bg-dark: #07090e; --border-color: rgba(255, 255, 255, 0.08);
+      --accent-cyan: #06b6d4; --accent-indigo: #6366f1; --accent-emerald: #10b981;
+      --text-primary: #f1f5f9; --text-muted: #64748b; --font-sans: 'Plus Jakarta Sans', sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg-dark); color: var(--text-primary); font-family: var(--font-sans); min-height: 100vh; }
+    .glass-panel { background: rgba(18, 24, 38, 0.75); backdrop-filter: blur(16px); border: 1px solid var(--border-color); border-radius: 16px; }
+    .app-header { border-bottom: 1px solid var(--border-color); background: rgba(7, 9, 14, 0.85); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+    .logo-badge { display: flex; align-items: center; gap: 0.75rem; }
+    .logo-icon { width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, var(--accent-indigo), var(--accent-cyan)); display: flex; align-items: center; justify-content: center; font-weight: 800; color: white; }
+    .logo-title { font-weight: 800; font-size: 1.35rem; }
+    .main-container { max-width: 1440px; margin: 0 auto; padding: 2rem; display: flex; flex-direction: column; gap: 1.5rem; }
+    .page-nav { display: flex; gap: 0.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; overflow-x: auto; }
+    .nav-item { padding: 0.75rem 1.25rem; border-radius: 10px; border: 1px solid var(--border-color); text-decoration: none; color: #94a3b8; font-size: 0.85rem; font-weight: 600; white-space: nowrap; }
+    .nav-item.active { background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(6, 182, 212, 0.2)); border-color: var(--accent-cyan); color: #fff; }
+    .badge { padding: 0.25rem 0.6rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+    .badge-cyan { background: rgba(6, 182, 212, 0.15); color: var(--accent-cyan); border: 1px solid rgba(6, 182, 212, 0.3); }
+    .badge-emerald { background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); border: 1px solid rgba(16, 185, 129, 0.3); }
+    .data-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .data-table th { text-align: left; padding: 0.75rem 1rem; color: var(--text-muted); border-bottom: 1px solid var(--border-color); font-size: 0.75rem; text-transform: uppercase; }
+    .data-table td { padding: 0.85rem 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.04); }
+    .stat-card { background: rgba(0, 0, 0, 0.25); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.25rem; }
+    .stat-value { font-size: 1.4rem; font-weight: 800; }
+    .stat-label { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState } = React;
+    function Layer3() {
+      const session = JSON.parse(localStorage.getItem('loantrace_session') || 'null');
+      const [searchQuery, setSearchQuery] = useState("");
+
+      const chunks = session ? session.chunks.filter(c => {
+        if (searchQuery && !c.text.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+        return true;
+      }) : [];
+
+      return (
+        <div>
+          <header className="app-header">
+            <div className="logo-badge">
+              <div className="logo-icon">LT</div>
+              <div>
+                <div className="logo-title">LoanTrace AI</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--accent-cyan)' }}>Page 3 of 6 • BGE Embedding & FAISS Index</div>
+              </div>
+            </div>
+          </header>
+
+          <main className="main-container">
+            <div className="page-nav">
+              <a href="layer1.html" className="nav-item">📄 Page 1: PDF Upload</a>
+              <a href="layer2.html" className="nav-item">📚 Page 2: Extraction & DSL</a>
+              <a href="layer3.html" className="nav-item active">🔢 Page 3: Embedding & FAISS</a>
+              <a href="layer4.html" className="nav-item">⚡ Page 4: Reasoning Layer</a>
+              <a href="layer5.html" className="nav-item">🛡️ Page 5: Trust Layer & MCM</a>
+              <a href="layer6.html" className="nav-item">✅ Page 6: Answer & Evidence</a>
+            </div>
+
+            <div className="glass-panel" style={{ padding: '2rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                <div>
+                  <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>Layer 3: BGE Embeddings & FAISS Vector Index Layer</h2>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Converts sliding window text chunks into 384-dimensional dense vectors stored in FAISS.</p>
+                </div>
+                {session && <span className="badge badge-emerald">FAISS Vector Index Active</span>}
+              </div>
+
+              {!session ? (
+                <div style={{ textAlign: 'center', padding: '3rem' }}>
+                  <p style={{ color: 'var(--text-muted)' }}>No active PDF session found.</p>
+                  <a href="layer1.html" className="nav-item active" style={{ display: 'inline-block', marginTop: '1rem' }}>Go to Page 1: Upload PDF →</a>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem' }}>
+                    <div className="stat-card">
+                      <div className="stat-label">EMBEDDING MODEL</div>
+                      <div className="stat-value" style={{ color: 'var(--accent-cyan)', fontSize: '1.1rem' }}>BAAI / MiniLM-L6-v2</div>
+                    </div>
+                    <div className="stat-card">
+                      <div className="stat-label">VECTOR DIMENSIONS</div>
+                      <div className="stat-value" style={{ color: 'var(--accent-indigo)' }}>384 Dense Float32</div>
+                    </div>
+                    <div className="stat-card">
+                      <div className="stat-label">FAISS INDEX TYPE</div>
+                      <div className="stat-value" style={{ color: 'var(--accent-emerald)', fontSize: '1.1rem' }}>IndexFlatIP (Cosine)</div>
+                    </div>
+                    <div className="stat-card">
+                      <div className="stat-label">INDEXED VECTOR CHUNKS</div>
+                      <div className="stat-value">{session.total_chunks}</div>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem' }}>
+                    <h3 style={{ fontSize: '1rem', fontWeight: 700 }}>Indexed Sliding Window Chunks:</h3>
+                    <input
+                      type="text" placeholder="Filter vector chunks by text..."
+                      value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
+                      style={{ padding: '0.4rem 0.8rem', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border-color)', borderRadius: '8px', color: '#fff', fontSize: '0.85rem', width: '300px' }}
+                    />
+                  </div>
+
+                  <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+                    <table className="data-table">
+                      <thead>
+                        <tr>
+                          <th>Chunk ID</th>
+                          <th>Source Page</th>
+                          <th>Text Snippet</th>
+                          <th>Word Count</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {chunks.map((c, i) => (
+                          <tr key={i}>
+                            <td><span className="badge badge-cyan">#{c.chunk_id}</span></td>
+                            <td>Page {c.page}</td>
+                            <td style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.8rem', color: '#cbd5e1' }}>
+                              {c.text.slice(0, 140)}...
+                            </td>
+                            <td>{c.word_count} words</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </div>
+          </main>
+        </div>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('root')).render(<Layer3 />);
+  </script>
+</body>
+</html>

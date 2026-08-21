@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Layer 5: Trust Layer & MCM - LoanTrace AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    :root {
+      --bg-dark: #07090e; --border-color: rgba(255, 255, 255, 0.08);
+      --accent-cyan: #06b6d4; --accent-indigo: #6366f1; --accent-emerald: #10b981; --accent-amber: #f59e0b;
+      --text-primary: #f1f5f9; --text-muted: #64748b; --font-sans: 'Plus Jakarta Sans', sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg-dark); color: var(--text-primary); font-family: var(--font-sans); min-height: 100vh; }
+    .glass-panel { background: rgba(18, 24, 38, 0.75); backdrop-filter: blur(16px); border: 1px solid var(--border-color); border-radius: 16px; }
+    .app-header { border-bottom: 1px solid var(--border-color); background: rgba(7, 9, 14, 0.85); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+    .logo-badge { display: flex; align-items: center; gap: 0.75rem; }
+    .logo-icon { width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, var(--accent-indigo), var(--accent-cyan)); display: flex; align-items: center; justify-content: center; font-weight: 800; color: white; }
+    .logo-title { font-weight: 800; font-size: 1.35rem; }
+    .main-container { max-width: 1440px; margin: 0 auto; padding: 2rem; display: flex; flex-direction: column; gap: 1.5rem; }
+    .page-nav { display: flex; gap: 0.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; overflow-x: auto; }
+    .nav-item { padding: 0.75rem 1.25rem; border-radius: 10px; border: 1px solid var(--border-color); text-decoration: none; color: #94a3b8; font-size: 0.85rem; font-weight: 600; white-space: nowrap; }
+    .nav-item.active { background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(6, 182, 212, 0.2)); border-color: var(--accent-cyan); color: #fff; }
+    .badge { padding: 0.25rem 0.6rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+    .badge-cyan { background: rgba(6, 182, 212, 0.15); color: var(--accent-cyan); border: 1px solid rgba(6, 182, 212, 0.3); }
+    .badge-emerald { background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); border: 1px solid rgba(16, 185, 129, 0.3); }
+    .badge-amber { background: rgba(245, 158, 11, 0.15); color: var(--accent-amber); border: 1px solid rgba(245, 158, 11, 0.3); }
+    .data-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .data-table th { text-align: left; padding: 0.75rem 1rem; color: var(--text-muted); border-bottom: 1px solid var(--border-color); font-size: 0.75rem; text-transform: uppercase; }
+    .data-table td { padding: 0.85rem 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.04); }
+    .stat-card { background: rgba(0, 0, 0, 0.25); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.25rem; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    function Layer5() {
+      const session = JSON.parse(localStorage.getItem('loantrace_session') || 'null');
+
+      return (
+        <div>
+          <header className="app-header">
+            <div className="logo-badge">
+              <div className="logo-icon">LT</div>
+              <div>
+                <div className="logo-title">LoanTrace AI</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--accent-cyan)' }}>Page 5 of 6 • Trust Layer, GLiNER & Metadata Covariance Matrix</div>
+              </div>
+            </div>
+          </header>
+
+          <main className="main-container">
+            <div className="page-nav">
+              <a href="layer1.html" className="nav-item">💬 Home & AI Conversation</a>
+              <a href="layer2.html" className="nav-item">📚 Document Structure & Extraction</a>
+              <a href="layer5.html" className="nav-item active">🛡️ Trust Layer & Covariance Matrix</a>
+              <a href="layer6.html" className="nav-item">✅ Audit Trail & Export Report</a>
+            </div>
+
+            <div className="glass-panel" style={{ padding: '2rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                <div>
+                  <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>Layer 5: GLiNER Entity Extraction & Metadata Covariance Matrix (MCM)</h2>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Cross-checks values across documents to detect underwriting discrepancies and calculate field covariance.</p>
+                </div>
+                {session && session.covariance_matrix && (
+                  session.covariance_matrix.is_verified ? (
+                    <span className="badge badge-emerald">Verified Consistent</span>
+                  ) : (
+                    <span className="badge badge-amber">⚠️ {session.covariance_matrix.total_conflicts} Conflict Detected</span>
+                  )
+                )}
+              </div>
+
+              {!session ? (
+                <div style={{ textAlign: 'center', padding: '3rem' }}>
+                  <p style={{ color: 'var(--text-muted)' }}>No active PDF session found.</p>
+                  <a href="layer1.html" className="nav-item active" style={{ display: 'inline-block', marginTop: '1rem' }}>Go to Page 1: Upload PDF →</a>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
+                    <div className="stat-card">
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700 }}>NER MODEL</div>
+                      <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--accent-cyan)' }}>GLiNER Zero-Shot NER</div>
+                    </div>
+                    <div className="stat-card">
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700 }}>RECONCILIATION ENGINE</div>
+                      <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--accent-emerald)' }}>Covariance Matrix (MCM)</div>
+                    </div>
+                    <div className="stat-card">
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700 }}>CONFLICT STATUS</div>
+                      <div style={{ fontSize: '1.1rem', fontWeight: 800, color: session.covariance_matrix.is_verified ? 'var(--accent-emerald)' : 'var(--accent-amber)' }}>
+                        {session.covariance_matrix.is_verified ? "0 Conflicts" : `${session.covariance_matrix.total_conflicts} Conflict(s)`}
+                      </div>
+                    </div>
+                  </div>
+
+                  <h3 style={{ fontSize: '1rem', fontWeight: 700, marginTop: '0.5rem' }}>Cross-Document Metadata Reconciliation Matrix:</h3>
+                  <div style={{ overflowX: 'auto' }}>
+                    <table className="data-table">
+                      <thead>
+                        <tr>
+                          <th>Loan Financial Field</th>
+                          {session.covariance_matrix.doc_types.map((dt) => (
+                            <th key={dt}>{dt}</th>
+                          ))}
+                          <th>Reconciliation Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {session.covariance_matrix.matrix.map((row, idx) => (
+                          <tr key={idx}>
+                            <td style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{row.field}</td>
+                            {session.covariance_matrix.doc_types.map((dt) => {
+                              const cell = row.values[dt];
+                              return (
+                                <td key={dt}>
+                                  {cell ? (
+                                    <span style={{ color: 'var(--accent-cyan)', fontFamily: 'JetBrains Mono, monospace' }}>
+                                      {typeof cell.value === 'number' ? `$${cell.value.toLocaleString()}` : cell.value}
+                                    </span>
+                                  ) : (
+                                    <span style={{ color: 'var(--text-muted)' }}>—</span>
+                                  )}
+                                </td>
+                              );
+                            })}
+                            <td>
+                              {row.has_conflict ? (
+                                <span className="badge badge-amber">Conflict Mismatch</span>
+                              ) : (
+                                <span className="badge badge-emerald">Verified Match</span>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </div>
+          </main>
+        </div>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('root')).render(<Layer5 />);
+  </script>
+</body>
+</html>

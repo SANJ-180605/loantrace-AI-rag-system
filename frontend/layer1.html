@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LoanTrace AI - Underwriting Intelligence Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    :root {
+      --bg-dark: #07090e; --bg-card: rgba(18, 24, 38, 0.75); --border-color: rgba(255, 255, 255, 0.08);
+      --accent-cyan: #06b6d4; --accent-indigo: #6366f1; --accent-emerald: #10b981; --accent-amber: #f59e0b;
+      --text-primary: #f1f5f9; --text-muted: #64748b; --font-sans: 'Plus Jakarta Sans', sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg-dark); color: var(--text-primary); font-family: var(--font-sans); min-height: 100vh; }
+    .glass-panel { background: rgba(18, 24, 38, 0.75); backdrop-filter: blur(16px); border: 1px solid var(--border-color); border-radius: 16px; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5); }
+    .app-header { border-bottom: 1px solid var(--border-color); background: rgba(7, 9, 14, 0.85); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+    .logo-badge { display: flex; align-items: center; gap: 0.75rem; }
+    .logo-icon { width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, var(--accent-indigo), var(--accent-cyan)); display: flex; align-items: center; justify-content: center; font-weight: 800; color: white; }
+    .logo-title { font-weight: 800; font-size: 1.35rem; background: linear-gradient(135deg, #ffffff 30%, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .main-container { max-width: 1440px; margin: 0 auto; padding: 2rem; display: flex; flex-direction: column; gap: 1.5rem; }
+    .page-nav { display: flex; gap: 0.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; overflow-x: auto; }
+    .nav-item { padding: 0.75rem 1.25rem; border-radius: 10px; border: 1px solid var(--border-color); text-decoration: none; color: #94a3b8; font-size: 0.85rem; font-weight: 600; white-space: nowrap; }
+    .nav-item.active { background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(6, 182, 212, 0.2)); border-color: var(--accent-cyan); color: #fff; }
+    .btn-primary { background: linear-gradient(135deg, var(--accent-indigo), var(--accent-cyan)); color: white; border: none; padding: 0.85rem 1.75rem; border-radius: 10px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35); }
+    .btn-primary:hover { opacity: 0.9; }
+    .btn-secondary { background: rgba(255, 255, 255, 0.05); color: var(--text-primary); border: 1px solid var(--border-color); padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem; }
+    .btn-secondary:hover { background: rgba(255, 255, 255, 0.1); }
+    .badge { padding: 0.25rem 0.6rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+    .badge-cyan { background: rgba(6, 182, 212, 0.15); color: var(--accent-cyan); border: 1px solid rgba(6, 182, 212, 0.3); }
+    .badge-emerald { background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); border: 1px solid rgba(16, 185, 129, 0.3); }
+    
+    /* Chat Styling */
+    .chat-box { display: flex; flex-direction: column; gap: 1rem; maxHeight: 480px; overflow-y: auto; padding-right: 0.5rem; scroll-behavior: smooth; }
+    .msg-user { align-self: flex-end; background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(6, 182, 212, 0.3)); border: 1px solid var(--accent-cyan); padding: 0.85rem 1.25rem; border-radius: 12px 12px 0 12px; max-width: 80%; font-size: 0.95rem; }
+    .msg-ai { align-self: flex-start; background: rgba(0, 0, 0, 0.4); border: 1px solid var(--border-color); padding: 1.25rem; border-radius: 12px 12px 12px 0; max-width: 90%; display: flex; flex-direction: column; gap: 0.75rem; }
+    .confidence-meter { display: flex; align-items: center; gap: 0.85rem; margin-top: 0.25rem; }
+    .meter-bar { flex: 1; height: 8px; background: rgba(255, 255, 255, 0.1); border-radius: 9999px; overflow: hidden; }
+    .meter-fill { height: 100%; background: linear-gradient(90deg, var(--accent-indigo), var(--accent-emerald)); border-radius: 9999px; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+    function HomeChatApp() {
+      const [uploading, setUploading] = useState(false);
+      const [session, setSession] = useState(() => JSON.parse(localStorage.getItem('loantrace_session') || 'null'));
+      const [inputQuery, setInputQuery] = useState("");
+      const [asking, setAsking] = useState(false);
+      const [chatHistory, setChatHistory] = useState(() => JSON.parse(localStorage.getItem('loantrace_chat') || '[]'));
+      const [selectedPage, setSelectedPage] = useState(null);
+      const [pageText, setPageText] = useState("");
+      const chatEndRef = useRef(null);
+
+      useEffect(() => {
+        chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, [chatHistory, asking]);
+
+      const sampleQuestions = [
+        "What is the borrower name and property address?",
+        "Confirm the loan amount across URLA 1003, Form 1008, and Closing Disclosure.",
+        "Do the W-2 box 1 wages reconcile with Form 1040 line 1z?",
+        "What is the borrower's stated monthly income?",
+        "What is the down payment amount?",
+        "How many paystubs and checking statements are included?"
+      ];
+
+      const processFile = async (file) => {
+        if (!file) return;
+        setUploading(true);
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+          const res = await fetch("http://localhost:8001/upload", { method: "POST", body: formData });
+          if (!res.ok) throw new Error("Upload failed");
+          const data = await res.json();
+          setSession(data);
+          localStorage.setItem('loantrace_session', JSON.stringify(data));
+        } catch (err) {
+          alert(`Error uploading PDF: ${err.message}`);
+        } finally {
+          setUploading(false);
+        }
+      };
+
+      const handleFileUpload = (e) => processFile(e.target.files[0]);
+
+      const handleSendQuery = async (qText) => {
+        const query = qText || inputQuery;
+        if (!query || !query.trim()) return;
+        if (!session) {
+          alert("Please upload a mortgage PDF first.");
+          return;
+        }
+
+        const userMsg = { sender: 'user', text: query, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) };
+        const updatedHistory = [...chatHistory, userMsg];
+        setChatHistory(updatedHistory);
+        setInputQuery("");
+        setAsking(true);
+
+        try {
+          const res = await fetch("http://localhost:8001/ask", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ session_id: session.session_id, question: query, top_k: 5 }),
+          });
+          if (!res.ok) throw new Error("Query failed");
+          const data = await res.json();
+
+          const aiMsg = {
+            sender: 'ai',
+            answer: data.answer,
+            route: data.route,
+            confidence: data.confidence,
+            source_pages: data.source_pages,
+            evidence: data.evidence,
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          };
+
+          const finalHistory = [...updatedHistory, aiMsg];
+          setChatHistory(finalHistory);
+          localStorage.setItem('loantrace_chat', JSON.stringify(finalHistory));
+          localStorage.setItem('loantrace_answer', JSON.stringify(data));
+        } catch (err) {
+          alert(`Query error: ${err.message}`);
+        } finally {
+          setAsking(false);
+        }
+      };
+
+      const navigateToDetail = (msg) => {
+        localStorage.setItem('loantrace_answer', JSON.stringify(msg));
+        window.location.href = 'layer6.html';
+      };
+
+      const fetchPageText = async (pageNum) => {
+        if (!session) return;
+        try {
+          const res = await fetch(`http://localhost:8001/session/${session.session_id}/page/${pageNum}`);
+          const data = await res.json();
+          setSelectedPage(pageNum);
+          setPageText(data.text);
+        } catch (err) { console.error(err); }
+      };
+
+      return (
+        <div>
+          <header className="app-header">
+            <div className="logo-badge">
+              <div className="logo-icon">LT</div>
+              <div>
+                <div className="logo-title">LoanTrace AI</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--accent-cyan)' }}>Interactive AI Underwriting Platform</div>
+              </div>
+            </div>
+            {session && (
+              <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                <span className="badge badge-cyan">📄 {session.filename} ({session.total_pages} pages)</span>
+                <span className="badge badge-emerald">Session ID: {session.session_id.slice(0, 8)}...</span>
+              </div>
+            )}
+          </header>
+
+          <main className="main-container">
+            <div className="page-nav">
+              <a href="layer1.html" className="nav-item active">💬 Home & AI Conversation</a>
+              <a href="layer2.html" className="nav-item">📚 Document Structure & Extraction</a>
+              <a href="layer5.html" className="nav-item">🛡️ Trust Layer & Covariance Matrix</a>
+              <a href="layer6.html" className="nav-item">✅ Audit Trail & Export Report</a>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '360px 1fr', gap: '1.5rem' }}>
+              
+              {/* Left Column: PDF Ingestion Panel */}
+              <div className="glass-panel" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                <div>
+                  <h2 style={{ fontSize: '1.15rem', fontWeight: 800 }}>📁 PDF Package Upload</h2>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '0.25rem' }}>
+                    Upload mortgage PDF (URLA 1003, LE, CD, W-2, 1040, Paystubs, Checking).
+                  </p>
+                </div>
+
+                <div style={{ background: 'rgba(0,0,0,0.3)', border: '2px dashed var(--border-color)', borderRadius: '12px', padding: '1.75rem 1rem', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
+                  <div style={{ fontSize: '2.25rem' }}>📁</div>
+                  <label className="btn-primary" style={{ cursor: 'pointer', fontSize: '0.85rem', padding: '0.65rem 1.25rem' }}>
+                    {uploading ? "Ingesting Package..." : "Upload Mortgage PDF"}
+                    <input type="file" accept=".pdf" onChange={handleFileUpload} style={{ display: 'none' }} />
+                  </label>
+                </div>
+
+                {session && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '0.5rem' }}>
+                    <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--accent-cyan)' }}>PACKAGE METADATA:</div>
+                    <div style={{ background: 'rgba(0,0,0,0.25)', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '0.8rem' }}>
+                      <div>• File: <strong>{session.filename}</strong></div>
+                      <div>• Total Extracted Pages: <strong>{session.total_pages}</strong></div>
+                      <div>• Categorized Documents: <strong>{session.lattice.total_documents}</strong></div>
+                      <div>• Vector Chunks: <strong>{session.total_chunks}</strong></div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Preset Dynamic Questions */}
+                <div style={{ marginTop: '0.5rem' }}>
+                  <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
+                    SAMPLE UNDERWRITING AUDIT QUESTIONS:
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                    {sampleQuestions.map((q, idx) => (
+                      <button key={idx} className="btn-secondary" style={{ fontSize: '0.78rem', padding: '0.5rem 0.75rem' }} onClick={() => handleSendQuery(q)}>
+                        ❓ {q}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column: Interactive AI Underwriter Conversation Console */}
+              <div className="glass-panel" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', height: '680px' }}>
+                <div style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem', marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <h2 style={{ fontSize: '1.25rem', fontWeight: 800 }}>💬 Dynamic AI Underwriter Conversation</h2>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>
+                      Ask ANY question about the package. Verified answers are generated with traceable citations.
+                    </p>
+                  </div>
+                  {chatHistory.length > 0 && (
+                    <button className="btn-secondary" style={{ fontSize: '0.75rem' }} onClick={() => { setChatHistory([]); localStorage.removeItem('loantrace_chat'); }}>
+                      Clear Chat
+                    </button>
+                  )}
+                </div>
+
+                {/* Chat Messages Container with Smooth Auto-Scroll */}
+                <div className="chat-box" style={{ flex: 1 }}>
+                  {chatHistory.length === 0 ? (
+                    <div style={{ margin: 'auto', textAlign: 'center', color: 'var(--text-muted)', maxWidth: '400px' }}>
+                      <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>🤖</div>
+                      <div style={{ fontWeight: 700, fontSize: '1rem', color: '#fff' }}>Ask Any Underwriting Question</div>
+                      <div style={{ fontSize: '0.85rem', marginTop: '0.25rem' }}>
+                        Upload a loan package and type any question or click a preset question on the left panel.
+                      </div>
+                    </div>
+                  ) : (
+                    chatHistory.map((msg, idx) => (
+                      msg.sender === 'user' ? (
+                        <div key={idx} className="msg-user">
+                          <div style={{ fontSize: '0.75rem', opacity: 0.8, marginBottom: '0.25rem' }}>You • {msg.time}</div>
+                          <div>{msg.text}</div>
+                        </div>
+                      ) : (
+                        <div key={idx} className="msg-ai">
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                              <span style={{ fontWeight: 800, color: 'var(--accent-cyan)', fontSize: '0.85rem' }}>LoanTrace Underwriter AI</span>
+                              <span className="badge badge-cyan">{msg.route}</span>
+                            </div>
+                            <span className="badge badge-emerald">Confidence: {msg.confidence}%</span>
+                          </div>
+
+                          <div className="confidence-meter">
+                            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Retrieval Safety</span>
+                            <div className="meter-bar">
+                              <div className="meter-fill" style={{ width: `${msg.confidence}%` }}></div>
+                            </div>
+                            <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--accent-cyan)' }}>{msg.confidence}%</span>
+                          </div>
+
+                          <div style={{ fontSize: '1rem', lineHeight: '1.6', color: '#ffffff', fontWeight: 500, background: 'rgba(0,0,0,0.25)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                            {msg.answer}
+                          </div>
+
+                          {/* Citations & View in Detail Action Row */}
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.35rem', paddingTop: '0.5rem', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                            <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                              {msg.source_pages && msg.source_pages.length > 0 && (
+                                <>
+                                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)' }}>CITATIONS:</span>
+                                  {msg.source_pages.map((pNum) => (
+                                    <button key={pNum} className="btn-secondary" style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }} onClick={() => fetchPageText(pNum)}>
+                                      👁️ Page {pNum}
+                                    </button>
+                                  ))}
+                                </>
+                              )}
+                            </div>
+                            <button
+                              className="btn-secondary"
+                              style={{ fontSize: '0.75rem', padding: '0.35rem 0.75rem', color: 'var(--accent-cyan)', borderColor: 'var(--accent-cyan)', background: 'rgba(6,182,212,0.1)' }}
+                              onClick={() => navigateToDetail(msg)}
+                            >
+                              🔍 View in Detail →
+                            </button>
+                          </div>
+                        </div>
+                      )
+                    ))
+                  )}
+                  {asking && (
+                    <div style={{ color: 'var(--accent-cyan)', fontSize: '0.85rem', fontStyle: 'italic', padding: '0.5rem' }}>
+                      ⚡ LoanTrace AI is reasoning over the document package...
+                    </div>
+                  )}
+                  <div ref={chatEndRef} />
+                </div>
+
+                {/* Input Bar */}
+                <div style={{ marginTop: '1rem', display: 'flex', gap: '0.75rem' }}>
+                  <input
+                    type="text"
+                    value={inputQuery}
+                    onChange={(e) => setInputQuery(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSendQuery()}
+                    placeholder="Ask ANY dynamic question..."
+                    style={{ flex: 1, padding: '0.85rem 1.25rem', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border-color)', borderRadius: '10px', color: '#fff', fontSize: '0.9rem' }}
+                  />
+                  <button className="btn-primary" onClick={() => handleSendQuery()} disabled={asking || !session}>
+                    {asking ? "Reasoning..." : "Send Query →"}
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </main>
+
+          {selectedPage !== null && (
+            <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)', zIndex: 1000, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '2rem' }}>
+              <div className="glass-panel" style={{ width: '100%', maxWidth: '800px', maxHeight: '80vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ fontWeight: 700 }}>📄 Page {selectedPage} Clean Extracted Text</div>
+                  <button className="btn-secondary" onClick={() => setSelectedPage(null)}>Close</button>
+                </div>
+                <div style={{ padding: '1.5rem', overflowY: 'auto', flex: 1 }}>
+                  <pre style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.9rem', color: '#e2e8f0', whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>
+                    {pageText}
+                  </pre>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('root')).render(<HomeChatApp />);
+  </script>
+</body>
+</html>

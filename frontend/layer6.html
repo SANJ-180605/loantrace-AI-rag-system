@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Layer 6: Answer & Evidence - LoanTrace AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    :root {
+      --bg-dark: #07090e; --border-color: rgba(255, 255, 255, 0.08);
+      --accent-cyan: #06b6d4; --accent-indigo: #6366f1; --accent-emerald: #10b981;
+      --text-primary: #f1f5f9; --text-muted: #64748b; --font-sans: 'Plus Jakarta Sans', sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg-dark); color: var(--text-primary); font-family: var(--font-sans); min-height: 100vh; }
+    .glass-panel { background: rgba(18, 24, 38, 0.75); backdrop-filter: blur(16px); border: 1px solid var(--border-color); border-radius: 16px; }
+    .app-header { border-bottom: 1px solid var(--border-color); background: rgba(7, 9, 14, 0.85); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+    .logo-badge { display: flex; align-items: center; gap: 0.75rem; }
+    .logo-icon { width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, var(--accent-indigo), var(--accent-cyan)); display: flex; align-items: center; justify-content: center; font-weight: 800; color: white; }
+    .logo-title { font-weight: 800; font-size: 1.35rem; }
+    .main-container { max-width: 1440px; margin: 0 auto; padding: 2rem; display: flex; flex-direction: column; gap: 1.5rem; }
+    .page-nav { display: flex; gap: 0.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; overflow-x: auto; }
+    .nav-item { padding: 0.75rem 1.25rem; border-radius: 10px; border: 1px solid var(--border-color); text-decoration: none; color: #94a3b8; font-size: 0.85rem; font-weight: 600; white-space: nowrap; }
+    .nav-item.active { background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(6, 182, 212, 0.2)); border-color: var(--accent-cyan); color: #fff; }
+    .btn-primary { background: linear-gradient(135deg, var(--accent-indigo), var(--accent-cyan)); color: white; border: none; padding: 0.75rem 1.25rem; border-radius: 8px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; }
+    .btn-secondary { background: rgba(255, 255, 255, 0.05); color: var(--text-primary); border: 1px solid var(--border-color); padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 500; font-size: 0.85rem; cursor: pointer; }
+    .btn-secondary:hover { background: rgba(255, 255, 255, 0.1); }
+    .badge { padding: 0.25rem 0.6rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+    .badge-emerald { background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); border: 1px solid rgba(16, 185, 129, 0.3); }
+    .confidence-meter { display: flex; align-items: center; gap: 1rem; }
+    .meter-bar { flex: 1; height: 10px; background: rgba(255, 255, 255, 0.1); border-radius: 9999px; overflow: hidden; }
+    .meter-fill { height: 100%; background: linear-gradient(90deg, var(--accent-indigo), var(--accent-emerald)); border-radius: 9999px; }
+    .evidence-box { background: rgba(0, 0, 0, 0.3); border-left: 3px solid var(--accent-cyan); padding: 1rem; border-radius: 0 8px 8px 0; font-family: JetBrains Mono, monospace; font-size: 0.85rem; color: #cbd5e1; margin-top: 0.5rem; line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState } = React;
+    function Layer6() {
+      const session = JSON.parse(localStorage.getItem('loantrace_session') || 'null');
+      const answerData = JSON.parse(localStorage.getItem('loantrace_answer') || 'null');
+      const [selectedPage, setSelectedPage] = useState(null);
+      const [pageText, setPageText] = useState("");
+
+      const fetchPageText = async (pageNum) => {
+        if (!session) return;
+        try {
+          const res = await fetch(`http://localhost:8001/session/${session.session_id}/page/${pageNum}`);
+          const data = await res.json();
+          setSelectedPage(pageNum);
+          setPageText(data.text);
+        } catch (err) { console.error(err); }
+      };
+
+      const exportAuditReport = () => {
+        if (!answerData) return;
+        const report = `# LoanTrace AI Underwriting Audit Report\n\n` +
+          `**Package File**: ${session?.filename || 'Mortgage Bundle'}\n` +
+          `**Confidence Score**: ${answerData.confidence}%\n` +
+          `**Question Route**: ${answerData.route}\n\n` +
+          `## Underwriter Answer:\n${answerData.answer}\n\n` +
+          `## Cited Source Pages:\n${answerData.source_pages.join(', ')}\n`;
+
+        const blob = new Blob([report], { type: "text/markdown" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = `LoanTrace_Audit_Report.md`;
+        a.click();
+      };
+
+      return (
+        <div>
+          <header className="app-header">
+            <div className="logo-badge">
+              <div className="logo-icon">LT</div>
+              <div>
+                <div className="logo-title">LoanTrace AI</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--accent-cyan)' }}>Page 6 of 6 • Underwriter Response & Traceable Evidence</div>
+              </div>
+            </div>
+            {answerData && (
+              <button className="btn-primary" onClick={exportAuditReport}>
+                📥 Export Audit Report
+              </button>
+            )}
+          </header>
+
+          <main className="main-container">
+            <div className="page-nav">
+              <a href="layer1.html" className="nav-item">💬 Home & AI Conversation</a>
+              <a href="layer2.html" className="nav-item">📚 Document Structure & Extraction</a>
+              <a href="layer5.html" className="nav-item">🛡️ Trust Layer & Covariance Matrix</a>
+              <a href="layer6.html" className="nav-item active">✅ Audit Trail & Export Report</a>
+            </div>
+
+            <div className="glass-panel" style={{ padding: '2rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                <div>
+                  <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>Layer 6: Underwriter Response & Traceable Evidence Trail</h2>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Presents final audit decision with exact source page citations and similarity distance metrics.</p>
+                </div>
+                {answerData && <span className="badge badge-emerald">Confidence: {answerData.confidence}%</span>}
+              </div>
+
+              {!answerData ? (
+                <div style={{ textAlign: 'center', padding: '3rem' }}>
+                  <p style={{ color: 'var(--text-muted)' }}>No query response available yet.</p>
+                  <a href="layer4.html" className="nav-item active" style={{ display: 'inline-block', marginTop: '1rem' }}>Go to Page 4: Ask Question →</a>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                  <div className="confidence-meter">
+                    <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#94a3b8' }}>Retrieval Confidence Safety Index</span>
+                    <div className="meter-bar">
+                      <div className="meter-fill" style={{ width: `${answerData.confidence}%` }}></div>
+                    </div>
+                    <span style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--accent-cyan)' }}>{answerData.confidence}%</span>
+                  </div>
+
+                  <div style={{ background: 'rgba(0,0,0,0.35)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                    <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--accent-cyan)', marginBottom: '0.5rem' }}>
+                      VERIFIED UNDERWRITER RESPONSE:
+                    </div>
+                    <div style={{ fontSize: '1.15rem', lineHeight: '1.6', color: '#ffffff', fontWeight: 600 }}>
+                      {answerData.answer}
+                    </div>
+                  </div>
+
+                  <div>
+                    <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#94a3b8', marginBottom: '0.5rem' }}>
+                      Traceable Source Citations:
+                    </div>
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                      {answerData.source_pages.map((pNum) => (
+                        <button key={pNum} className="btn-secondary" onClick={() => fetchPageText(pNum)}>
+                          👁️ Open Page {pNum} Clean Text
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {answerData.evidence && answerData.evidence.length > 0 && (
+                    <div>
+                      <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#94a3b8', marginBottom: '0.5rem' }}>
+                        Retrieved Vector Evidence Snippets:
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                        {answerData.evidence.map((ev, i) => (
+                          <div key={i} className="evidence-box">
+                            <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--accent-cyan)', marginBottom: '0.25rem', fontWeight: 700 }}>
+                              <span>Page {ev.page}</span>
+                              {ev.distance !== undefined && <span>Cosine Distance: {ev.distance.toFixed(4)}</span>}
+                            </div>
+                            <div>{ev.text}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {selectedPage !== null && (
+              <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)', zIndex: 1000, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '2rem' }}>
+                <div className="glass-panel" style={{ width: '100%', maxWidth: '800px', maxHeight: '80vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                  <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ fontWeight: 700 }}>📄 Page {selectedPage} Clean Extracted Text</div>
+                    <button className="btn-secondary" onClick={() => setSelectedPage(null)}>Close</button>
+                  </div>
+                  <div style={{ padding: '1.5rem', overflowY: 'auto', flex: 1 }}>
+                    <pre style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.9rem', color: '#e2e8f0', whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>
+                      {pageText}
+                    </pre>
+                  </div>
+                </div>
+              </div>
+            )}
+          </main>
+        </div>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('root')).render(<Layer6 />);
+  </script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Layer 2: Extraction & DSL - LoanTrace AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    :root {
+      --bg-dark: #07090e; --border-color: rgba(255, 255, 255, 0.08);
+      --accent-cyan: #06b6d4; --accent-indigo: #6366f1; --accent-emerald: #10b981;
+      --text-primary: #f1f5f9; --text-muted: #64748b; --font-sans: 'Plus Jakarta Sans', sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg-dark); color: var(--text-primary); font-family: var(--font-sans); min-height: 100vh; }
+    .glass-panel { background: rgba(18, 24, 38, 0.75); backdrop-filter: blur(16px); border: 1px solid var(--border-color); border-radius: 16px; }
+    .app-header { border-bottom: 1px solid var(--border-color); background: rgba(7, 9, 14, 0.85); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+    .logo-badge { display: flex; align-items: center; gap: 0.75rem; }
+    .logo-icon { width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, var(--accent-indigo), var(--accent-cyan)); display: flex; align-items: center; justify-content: center; font-weight: 800; color: white; }
+    .logo-title { font-weight: 800; font-size: 1.35rem; }
+    .main-container { max-width: 1440px; margin: 0 auto; padding: 2rem; display: flex; flex-direction: column; gap: 1.5rem; }
+    .page-nav { display: flex; gap: 0.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; overflow-x: auto; }
+    .nav-item { padding: 0.75rem 1.25rem; border-radius: 10px; border: 1px solid var(--border-color); text-decoration: none; color: #94a3b8; font-size: 0.85rem; font-weight: 600; white-space: nowrap; }
+    .nav-item.active { background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(6, 182, 212, 0.2)); border-color: var(--accent-cyan); color: #fff; }
+    .btn-secondary { background: rgba(255, 255, 255, 0.05); color: var(--text-primary); border: 1px solid var(--border-color); padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; }
+    .btn-secondary:hover { background: rgba(255, 255, 255, 0.1); }
+    .badge { padding: 0.25rem 0.6rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+    .badge-cyan { background: rgba(6, 182, 212, 0.15); color: var(--accent-cyan); border: 1px solid rgba(6, 182, 212, 0.3); }
+    .badge-emerald { background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); border: 1px solid rgba(16, 185, 129, 0.3); }
+    .filter-btn { padding: 0.4rem 0.8rem; border-radius: 8px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.3); color: #94a3b8; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+    .filter-btn.active { background: var(--accent-cyan); color: #000; border-color: var(--accent-cyan); }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState } = React;
+    function Layer2() {
+      const session = JSON.parse(localStorage.getItem('loantrace_session') || 'null');
+      const [filter, setFilter] = useState("ALL");
+      const [searchFilter, setSearchFilter] = useState("");
+      const [selectedPage, setSelectedPage] = useState(null);
+      const [pageText, setPageText] = useState("");
+
+      const fetchPageText = async (pageNum) => {
+        if (!session) return;
+        try {
+          const res = await fetch(`http://localhost:8001/session/${session.session_id}/page/${pageNum}`);
+          const data = await res.json();
+          setSelectedPage(pageNum);
+          setPageText(data.text);
+        } catch (err) { console.error(err); }
+      };
+
+      const docs = session ? session.lattice.documents.filter(d => {
+        if (searchFilter && !d.name.toLowerCase().includes(searchFilter.toLowerCase())) return false;
+        if (filter === "LOAN" && !["URLA 1003", "Form 1008"].includes(d.type)) return false;
+        if (filter === "DISCLOSURE" && !["Loan Estimate", "Closing Disclosure"].includes(d.type)) return false;
+        if (filter === "TAX" && !["W-2", "Form 1040", "Paystub"].includes(d.type)) return false;
+        if (filter === "BANK" && !["Checking Statement"].includes(d.type)) return false;
+        return true;
+      }) : [];
+
+      return (
+        <div>
+          <header className="app-header">
+            <div className="logo-badge">
+              <div className="logo-icon">LT</div>
+              <div>
+                <div className="logo-title">LoanTrace AI</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--accent-cyan)' }}>Page 2 of 6 • PyMuPDF & Document Structure Lattice</div>
+              </div>
+            </div>
+          </header>
+
+          <main className="main-container">
+            <div className="page-nav">
+              <a href="layer1.html" className="nav-item">💬 Home & AI Conversation</a>
+              <a href="layer2.html" className="nav-item active">📚 Document Structure & Extraction</a>
+              <a href="layer5.html" className="nav-item">🛡️ Trust Layer & Covariance Matrix</a>
+              <a href="layer6.html" className="nav-item">✅ Audit Trail & Export Report</a>
+            </div>
+
+            <div className="glass-panel" style={{ padding: '2rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+                <div>
+                  <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>Layer 2: PyMuPDF Extraction & Document Structure Lattice (DSL)</h2>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Identifies document boundaries, page ranges, and OCR fallback status per document.</p>
+                </div>
+                {session && <span className="badge badge-cyan">{session.lattice.total_documents} Documents Categorized</span>}
+              </div>
+
+              {!session ? (
+                <div style={{ textAlign: 'center', padding: '3rem' }}>
+                  <p style={{ color: 'var(--text-muted)' }}>No active PDF session found.</p>
+                  <a href="layer1.html" className="nav-item active" style={{ display: 'inline-block', marginTop: '1rem' }}>Go to Page 1: Upload PDF →</a>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                  {/* Category Filter bar */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <button className={`filter-btn ${filter === 'ALL' ? 'active' : ''}`} onClick={() => setFilter('ALL')}>All Documents ({session.lattice.total_documents})</button>
+                      <button className={`filter-btn ${filter === 'LOAN' ? 'active' : ''}`} onClick={() => setFilter('LOAN')}>Loan Apps</button>
+                      <button className={`filter-btn ${filter === 'DISCLOSURE' ? 'active' : ''}`} onClick={() => setFilter('DISCLOSURE')}>Disclosures</button>
+                      <button className={`filter-btn ${filter === 'TAX' ? 'active' : ''}`} onClick={() => setFilter('TAX')}>Income/Tax</button>
+                      <button className={`filter-btn ${filter === 'BANK' ? 'active' : ''}`} onClick={() => setFilter('BANK')}>Bank Statements</button>
+                    </div>
+
+                    <input
+                      type="text" placeholder="Search document name..."
+                      value={searchFilter} onChange={(e) => setSearchFilter(e.target.value)}
+                      style={{ padding: '0.4rem 0.8rem', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border-color)', borderRadius: '8px', color: '#fff', fontSize: '0.85rem' }}
+                    />
+                  </div>
+
+                  {/* Document Grid */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
+                    {docs.map((doc, idx) => (
+                      <div key={idx} style={{ background: 'rgba(0,0,0,0.35)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <span style={{ fontWeight: 800, fontSize: '1.05rem' }}>{doc.name}</span>
+                            <span className="badge badge-emerald">Digital PDF</span>
+                          </div>
+                          <div style={{ fontSize: '0.85rem', color: 'var(--accent-cyan)', marginTop: '0.35rem' }}>
+                            Pages {doc.start_page} to {doc.end_page} ({doc.page_count} page(s))
+                          </div>
+                        </div>
+                        <button className="btn-secondary" onClick={() => fetchPageText(doc.start_page)}>
+                          👁️ Read Page {doc.start_page}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {selectedPage !== null && (
+              <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)', zIndex: 1000, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '2rem' }}>
+                <div className="glass-panel" style={{ width: '100%', maxWidth: '800px', maxHeight: '80vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                  <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ fontWeight: 700 }}>📄 Page {selectedPage} Clean Extracted Text</div>
+                    <button className="btn-secondary" onClick={() => setSelectedPage(null)}>Close</button>
+                  </div>
+                  <div style={{ padding: '1.5rem', overflowY: 'auto', flex: 1 }}>
+                    <pre style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.9rem', color: '#e2e8f0', whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>
+                      {pageText}
+                    </pre>
+                  </div>
+                </div>
+              </div>
+            )}
+          </main>
+        </div>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('root')).render(<Layer2 />);
+  </script>
+</body>
+</html>
