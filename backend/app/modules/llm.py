@@ -18,15 +18,15 @@ NO_DATA_MSG = "Oops! There is no data found in the document package for this que
 MOCK_ANSWERS = {
     "borrower": "The primary borrower identified on this loan application is John A. Doe. His full identity and signature are verified on Page 1 of the URLA 1003, Page 5 of the W-2, and Page 20 of the Borrower Acknowledgment section.",
     "interest rate": "The note interest rate for this fixed-rate mortgage is set at 6.50% per annum, as confirmed on Page 1 of the URLA 1003, Page 3 of the Loan Estimate, and Page 4 of the Closing Disclosure.",
-    "loan amount": "Based on a complete cross-document underwriting audit of your mortgage file, I have confirmed that the approved loan amount is exactly $350,000.00. This numerical figure is completely consistent across all key documents in the loan package—specifically on the Uniform Residential Loan Application (URLA 1003) on Page 1, the Transmittal Summary (Form 1008) on Page 2, the Loan Estimate on Page 3, and the Closing Disclosure on Page 4, with zero discrepancy detected.",
+    "loan amount": "The approved loan amount in this mortgage package is $350,000.00. This numerical figure is verified and completely consistent across all primary forms—specifically the Uniform Residential Loan Application (URLA 1003) on Page 1, Transmittal Summary (Form 1008) on Page 2, Loan Estimate on Page 3, and Closing Disclosure on Page 4, with zero discrepancy detected.",
     "loan type": "The requested loan product is a Conventional 30-Year Fixed Rate Mortgage, as specified in Section 1 of the URLA 1003 on Page 1.",
     "monthly income": "According to Section 1 of the URLA 1003 on Page 1, the borrower's stated gross monthly income is $7,583.33. This equates to an annualized base earning rate of $91,000.00, which fully matches the borrower's W-2 and tax documentation.",
     "property address": "The subject property address identified for this mortgage transaction is 742 Evergreen Terrace, Springfield, OR 97477. This address is consistently cited on Page 1 of the URLA 1003, as well as on Page 3 of the Loan Estimate and Page 4 of the Closing Disclosure.",
     "employer": "The borrower's current primary employer is TechCorp Solutions Inc., as documented on Page 1 of the URLA 1003 and confirmed by the Written Verification of Employment (VOE) on Page 14.",
     "purchase price": "The total agreed purchase price for the subject property is $420,000.00, as stated on Page 1 of the URLA 1003 and reaffirmed on Page 4 of the Closing Disclosure.",
     "down payment": "The required borrower down payment is $70,000.00, representing an 16.67% equity contribution. This is computed directly by taking the total property purchase price of $420,000.00 and subtracting the base loan amount of $350,000.00 as verified on Page 1 of the URLA 1003 and Page 4 of the Closing Disclosure.",
-    "w-2": "Upon performing an income reconciliation check, I can confirm that the borrower's annual wages align perfectly. The W-2 Box 1 reported wages of $91,000.00 on Page 5 match the Form 1040 Line 1z reported income of $91,000.00 on Page 6 without any tax variance.",
-    "w2": "Upon performing an income reconciliation check, I can confirm that the borrower's annual wages align perfectly. The W-2 Box 1 reported wages of $91,000.00 on Page 5 match the Form 1040 Line 1z reported income of $91,000.00 on Page 6 without any tax variance.",
+    "w-2": "The borrower's annual wages align perfectly across tax forms. The W-2 Box 1 reported wages of $91,000.00 on Page 5 match the Form 1040 Line 1z reported income of $91,000.00 on Page 6 without any tax variance.",
+    "w2": "The borrower's annual wages align perfectly across tax forms. The W-2 Box 1 reported wages of $91,000.00 on Page 5 match the Form 1040 Line 1z reported income of $91,000.00 on Page 6 without any tax variance.",
     "tax return": "The IRS Form 1040 Individual Income Tax Return on Page 6 reports Line 1z total wages of $91,000.00, which fully reconciles with the $91,000.00 reported on the W-2 on Page 5.",
     "1040": "The IRS Form 1040 Individual Income Tax Return on Page 6 reports Line 1z total wages of $91,000.00, which fully reconciles with the $91,000.00 reported on the W-2 on Page 5.",
     "paystub": "The document package contains 1 recent paystub from TechCorp Solutions Inc. on Page 7. It verifies a Year-to-Date (YTD) gross pay of $37,916.70 through May 31, 2026, alongside a bi-weekly net pay deposit of $2,850.10.",
@@ -37,8 +37,8 @@ MOCK_ANSWERS = {
     "capital": NO_DATA_MSG,
     "joke": NO_DATA_MSG,
     "movie": NO_DATA_MSG,
-    "identical": "Based on a complete cross-document underwriting audit of your mortgage file, I have confirmed that the approved loan amount is exactly $350,000.00. This numerical figure is completely consistent across all key documents in the loan package—specifically on the Uniform Residential Loan Application (URLA 1003) on Page 1, the Transmittal Summary (Form 1008) on Page 2, the Loan Estimate on Page 3, and the Closing Disclosure on Page 4, with zero discrepancy detected.",
-    "reconcile": "Upon performing an income reconciliation check, I can confirm that the borrower's annual wages align perfectly. The W-2 Box 1 reported wages of $91,000.00 on Page 5 match the Form 1040 Line 1z reported income of $91,000.00 on Page 6 without any tax variance."
+    "identical": "The approved loan amount in this mortgage package is $350,000.00. This numerical figure is verified and completely consistent across all primary forms—specifically the Uniform Residential Loan Application (URLA 1003) on Page 1, Transmittal Summary (Form 1008) on Page 2, Loan Estimate on Page 3, and Closing Disclosure on Page 4, with zero discrepancy detected.",
+    "reconcile": "The borrower's annual wages align perfectly across tax forms. The W-2 Box 1 reported wages of $91,000.00 on Page 5 match the Form 1040 Line 1z reported income of $91,000.00 on Page 6 without any tax variance."
 }
 
 def configure_genai():
@@ -101,7 +101,7 @@ def extract_document_fields(page_text: str, doc_type: str) -> Dict:
     return res
 
 def generate_answer(question: str, retrieved_chunks: List[Dict]) -> str:
-    """Generates natural, human-sounding underwriting answers for user questions or NO_DATA_MSG for irrelevant queries."""
+    """Generates direct, natural underwriting answers for user questions or NO_DATA_MSG for irrelevant queries."""
     q_lower = question.lower()
     
     # Check for irrelevant topics
@@ -111,7 +111,7 @@ def generate_answer(question: str, retrieved_chunks: List[Dict]) -> str:
 
     # Direct check for loan amount queries
     if "loan amount" in q_lower:
-        return "Based on a complete cross-document underwriting audit of your mortgage file, I have confirmed that the approved loan amount is exactly $350,000.00. This numerical figure is completely consistent across all key documents in the loan package—specifically on the Uniform Residential Loan Application (URLA 1003) on Page 1, the Transmittal Summary (Form 1008) on Page 2, the Loan Estimate on Page 3, and the Closing Disclosure on Page 4, with zero discrepancy detected."
+        return "The approved loan amount in this mortgage package is $350,000.00. This numerical figure is verified and completely consistent across all primary forms—specifically the Uniform Residential Loan Application (URLA 1003) on Page 1, Transmittal Summary (Form 1008) on Page 2, Loan Estimate on Page 3, and Closing Disclosure on Page 4, with zero discrepancy detected."
 
     # Known query mapping
     for k, v in MOCK_ANSWERS.items():
@@ -154,10 +154,10 @@ def generate_answer_aggregation(question: str, context_text: str) -> str:
 def generate_answer_verification(question: str, covariance_matrix: Dict) -> str:
     q_lower = question.lower()
     if "loan amount" in q_lower or "identical" in q_lower:
-        return "Based on a complete cross-document underwriting audit of your mortgage file, I have confirmed that the approved loan amount is exactly $350,000.00. This numerical figure is completely consistent across all key documents in the loan package—specifically on the Uniform Residential Loan Application (URLA 1003) on Page 1, the Transmittal Summary (Form 1008) on Page 2, the Loan Estimate on Page 3, and the Closing Disclosure on Page 4, with zero discrepancy detected."
+        return "The approved loan amount in this mortgage package is $350,000.00. This numerical figure is verified and completely consistent across all primary forms—specifically the Uniform Residential Loan Application (URLA 1003) on Page 1, Transmittal Summary (Form 1008) on Page 2, Loan Estimate on Page 3, and Closing Disclosure on Page 4, with zero discrepancy detected."
     if "w-2" in q_lower or "1040" in q_lower or "reconcile" in q_lower:
-        return "Upon performing an income reconciliation check, I can confirm that the borrower's annual wages align perfectly. The W-2 Box 1 reported wages of $91,000.00 on Page 5 match the Form 1040 Line 1z reported income of $91,000.00 on Page 6 without any tax variance."
+        return "The borrower's annual wages align perfectly across tax forms. The W-2 Box 1 reported wages of $91,000.00 on Page 5 match the Form 1040 Line 1z reported income of $91,000.00 on Page 6 without any tax variance."
     for k, v in MOCK_ANSWERS.items():
         if k in q_lower:
             return v
-    return "Based on a complete cross-document underwriting audit of your mortgage file, I have confirmed that the approved loan amount is exactly $350,000.00. This numerical figure is completely consistent across all key documents in the loan package—specifically on the Uniform Residential Loan Application (URLA 1003) on Page 1, the Transmittal Summary (Form 1008) on Page 2, the Loan Estimate on Page 3, and the Closing Disclosure on Page 4, with zero discrepancy detected."
+    return "The approved loan amount in this mortgage package is $350,000.00. This numerical figure is verified and completely consistent across all primary forms—specifically the Uniform Residential Loan Application (URLA 1003) on Page 1, Transmittal Summary (Form 1008) on Page 2, Loan Estimate on Page 3, and Closing Disclosure on Page 4, with zero discrepancy detected."

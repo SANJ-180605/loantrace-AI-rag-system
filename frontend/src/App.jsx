@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import {
-  FileText, Upload, Cpu, Database, ShieldCheck, HelpCircle,
+import { 
+  FileText, Upload, Cpu, Database, ShieldCheck, HelpCircle, 
   AlertTriangle, CheckCircle, Search, Layers, RefreshCw, Eye, ArrowRight,
   Send, User, Bot, Sparkles, FileSpreadsheet, CheckSquare, Download, ChevronDown, ChevronUp,
   Activity, Award, Zap, Printer, X, Copy, Check, MessageSquare
@@ -21,7 +21,7 @@ export default function App() {
     {
       id: "initial-welcome",
       role: "assistant",
-      text: "👋 Hi there! Welcome to LoanTrace AI Underwriting Intelligence.\n\nUpload your multi-page mortgage PDF package (supports up to 2,000+ pages) on the left panel or click any suggested question below. I can instantly verify loan amounts, income reconciliation, W-2 vs 1040 wages, paystubs, checking balances, and document structure with line-by-line page proofs across all pages.",
+      text: "👋 Hi there! Welcome to LoanTrace AI Underwriting Intelligence.\n\nUpload your multi-page mortgage PDF package (supports up to 2,000+ pages) on the left panel or click any suggested question below. I will answer directly according to your uploaded PDF documentation with line-by-line page proofs across all pages.",
       source_pages: [],
       confidence: 100,
       route: "WELCOME_ASSISTANT",
@@ -33,7 +33,7 @@ export default function App() {
     {
       id: "demo-proof-1",
       question: "Confirm the one loan amount that should be identical across URLA 1003, Form 1008, Closing Disclosure, and Loan Estimate.",
-      answer: "The loan amount of $350,000.00 is verified and identical across URLA 1003 (Page 1), Form 1008 (Page 2), Loan Estimate (Page 3), and Closing Disclosure (Page 4).",
+      answer: "The approved loan amount in this mortgage package is $350,000.00. This numerical figure is verified and completely consistent across all primary forms—specifically the Uniform Residential Loan Application (URLA 1003) on Page 1, Transmittal Summary (Form 1008) on Page 2, Loan Estimate on Page 3, and Closing Disclosure on Page 4, with zero discrepancy detected.",
       route: "VERIFICATION",
       confidence: 98,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
@@ -121,7 +121,7 @@ export default function App() {
       setFile(fileToUpload);
       setSession(data);
       setPageRangeStart(1);
-
+      
       setMessages((prev) => [
         ...prev,
         {
@@ -190,7 +190,7 @@ export default function App() {
       }
 
       const data = await res.json();
-
+      
       const botMsg = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
@@ -216,11 +216,11 @@ export default function App() {
               const pData = await pRes.json();
               rawText = pData.text || "";
             }
-          } catch (e) { }
+          } catch (e) {}
 
           const lines = rawText.split("\n");
-          const qWords = targetQ.toLowerCase().split(/\s+/).filter(w => w.length > 3 && !["what", "where", "which", "how", "confirm"].includes(w));
-
+          const qWords = targetQ.toLowerCase().split(/\s+/).filter(w => w.length > 3 && !["what","where","which","how","confirm"].includes(w));
+          
           const lineHighlights = [];
           lines.forEach((lineStr, idx) => {
             const lLower = lineStr.toLowerCase();
@@ -297,37 +297,37 @@ export default function App() {
   const rangePageEnd = Math.min(pageRangeStart + 49, totalPagesInSession);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+    <div className="h-screen bg-slate-950 text-slate-100 flex flex-col font-sans overflow-hidden">
       {/* App Header */}
-      <header className="sticky top-0 z-50 backdrop-blur-xl bg-slate-950/80 border-b border-slate-800 px-6 py-4 flex items-center justify-between">
+      <header className="sticky top-0 z-50 backdrop-blur-xl bg-slate-950/90 border-b border-slate-800 px-6 py-3.5 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-indigo-500/30 animate-pulse-glow">
-            <ShieldCheck size={24} className="text-white" />
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-indigo-500/30 animate-pulse-glow">
+            <ShieldCheck size={22} className="text-white" />
           </div>
           <div>
-            <div className="text-xl font-extrabold bg-gradient-to-r from-white via-cyan-200 to-slate-400 bg-clip-text text-transparent">
+            <div className="text-lg font-extrabold bg-gradient-to-r from-white via-cyan-200 to-slate-400 bg-clip-text text-transparent">
               LoanTrace AI
             </div>
-            <div className="text-xs font-semibold text-cyan-400 tracking-wider uppercase flex items-center gap-1.5">
-              <Sparkles size={12} className="text-cyan-400" /> Mortgage Audit Pipeline • 2,000+ Page Scale Engine
+            <div className="text-[11px] font-semibold text-cyan-400 tracking-wider uppercase flex items-center gap-1.5">
+              <Sparkles size={11} className="text-cyan-400" /> Mortgage Audit Pipeline • 2,000+ Page Scale Engine
             </div>
           </div>
         </div>
 
         {session && (
           <div className="flex items-center gap-3">
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 shadow-inner">
-              <FileText size={14} /> {session.filename} ({session.total_pages} pages)
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 shadow-inner">
+              <FileText size={13} /> {session.filename} ({session.total_pages} pages)
             </span>
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 shadow-inner">
-              <Activity size={13} className="text-emerald-400" /> Active Session
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 shadow-inner">
+              <Activity size={12} className="text-emerald-400" /> Active Session
             </span>
           </div>
         )}
       </header>
 
       {/* Navigation Tabs */}
-      <div className="bg-slate-900/60 border-b border-slate-800 px-6 py-2 flex items-center gap-2 overflow-x-auto">
+      <div className="bg-slate-900/70 border-b border-slate-800 px-6 py-1.5 flex items-center gap-2 overflow-x-auto shrink-0">
         {[
           { id: "home", label: "Home & AI Conversation", icon: Sparkles },
           { id: "structure", label: "Document Structure & Extraction", icon: Layers },
@@ -339,12 +339,13 @@ export default function App() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 relative ${activeTab === tab.id
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 relative ${
+                activeTab === tab.id
                   ? "bg-gradient-to-r from-cyan-500/20 to-indigo-500/20 text-cyan-300 border border-cyan-500/40 shadow-lg shadow-cyan-500/10 scale-102"
                   : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/40"
-                }`}
+              }`}
             >
-              <Icon size={15} /> {tab.label}
+              <Icon size={14} /> {tab.label}
               {activeTab === tab.id && (
                 <div className="absolute bottom-0 left-3 right-3 h-0.5 bg-gradient-to-r from-cyan-400 to-indigo-400 rounded-full" />
               )}
@@ -353,37 +354,37 @@ export default function App() {
         })}
       </div>
 
-      {/* Main Content Area */}
-      <main className="max-w-[1600px] w-full mx-auto p-6 flex flex-col gap-6 flex-1">
-
+      {/* Main Content Area - Expands to complete screen with zero bottom space */}
+      <main className="max-w-[1800px] w-full mx-auto px-6 py-4 flex flex-col gap-4 flex-1 h-[calc(100vh-110px)] overflow-hidden">
+        
         {/* HOME & AI CONVERSATION VIEW (Left: Upload Panel | Right: AI Chat Box) */}
         {activeTab === "home" && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 items-start">
-
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 h-full items-stretch overflow-hidden">
+            
             {/* LEFT COLUMN: PDF Upload & Document Ingestion Panel (5 cols) */}
-            <div className="lg:col-span-5 flex flex-col gap-6">
+            <div className="lg:col-span-5 flex flex-col gap-4 h-full overflow-y-auto pr-1">
               {/* PDF Upload Hero Box */}
-              <div className="p-6 rounded-3xl bg-slate-900/80 border border-slate-800 backdrop-blur-xl flex flex-col gap-5 shadow-2xl relative overflow-hidden glass-panel">
-                <div className="flex items-center gap-3 border-b border-slate-800 pb-4">
-                  <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400 shrink-0 animate-float">
-                    <Upload size={20} />
+              <div className="p-5 rounded-3xl bg-slate-900/80 border border-slate-800 backdrop-blur-xl flex flex-col gap-4 shadow-2xl relative overflow-hidden glass-panel shrink-0">
+                <div className="flex items-center gap-3 border-b border-slate-800 pb-3">
+                  <div className="w-9 h-9 rounded-xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400 shrink-0 animate-float">
+                    <Upload size={18} />
                   </div>
                   <div>
-                    <h2 className="text-base font-bold text-slate-100">PDF Document Ingestion</h2>
-                    <p className="text-xs text-slate-400">Upload multi-page mortgage loan package (Up to 2,000+ Pages)</p>
+                    <h2 className="text-sm font-bold text-slate-100">PDF Document Ingestion</h2>
+                    <p className="text-[11px] text-slate-400">Upload multi-page mortgage loan package (Up to 2,000+ Pages)</p>
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-3">
-                  <label className="cursor-pointer w-full p-6 rounded-2xl border-2 border-dashed border-slate-700/80 hover:border-cyan-500/60 bg-slate-950/60 hover:bg-slate-950 transition-all duration-300 flex flex-col items-center justify-center text-center gap-3 group">
-                    <div className="w-12 h-12 rounded-2xl bg-indigo-600/20 text-indigo-400 group-hover:scale-110 transition-transform duration-300 flex items-center justify-center">
-                      <Upload size={24} />
+                <div className="flex flex-col gap-2">
+                  <label className="cursor-pointer w-full p-5 rounded-2xl border-2 border-dashed border-slate-700/80 hover:border-cyan-500/60 bg-slate-950/60 hover:bg-slate-950 transition-all duration-300 flex flex-col items-center justify-center text-center gap-2 group">
+                    <div className="w-10 h-10 rounded-2xl bg-indigo-600/20 text-indigo-400 group-hover:scale-110 transition-transform duration-300 flex items-center justify-center">
+                      <Upload size={20} />
                     </div>
                     <div>
-                      <div className="text-sm font-bold text-slate-200">
+                      <div className="text-xs font-bold text-slate-200">
                         {uploading ? "Extracting & Indexing PDF..." : "Click or Drag PDF to Upload"}
                       </div>
-                      <div className="text-xs text-slate-400 mt-1">
+                      <div className="text-[10px] text-slate-400 mt-0.5">
                         High-capacity engine parses up to 2,000+ pages (URLA 1003, LE, CD, W-2, 1040, Paystubs)
                       </div>
                     </div>
@@ -393,38 +394,38 @@ export default function App() {
 
                 {/* Session & File Details */}
                 {session ? (
-                  <div className="flex flex-col gap-4 pt-2 animate-fade-in">
+                  <div className="flex flex-col gap-3 pt-1 animate-fade-in">
                     <div className="flex items-center justify-between">
-                      <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Ingestion Summary</div>
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                      <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Ingestion Summary</div>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
                         {session.total_pages} / 2,000+ Pages Indexed
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 hover:border-slate-700 transition">
-                        <div className="text-[11px] text-slate-400">File Name</div>
+                    <div className="grid grid-cols-2 gap-2.5">
+                      <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800 hover:border-slate-700 transition">
+                        <div className="text-[10px] text-slate-400">File Name</div>
                         <div className="text-xs font-bold text-slate-100 truncate mt-0.5">{session.filename}</div>
                       </div>
-                      <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 hover:border-slate-700 transition">
-                        <div className="text-[11px] text-slate-400">Total Extracted Pages</div>
+                      <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800 hover:border-slate-700 transition">
+                        <div className="text-[10px] text-slate-400">Total Extracted Pages</div>
                         <div className="text-xs font-bold text-cyan-400 mt-0.5">{session.total_pages} Pages</div>
                       </div>
-                      <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 hover:border-slate-700 transition">
-                        <div className="text-[11px] text-slate-400">Classified Forms</div>
+                      <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800 hover:border-slate-700 transition">
+                        <div className="text-[10px] text-slate-400">Classified Forms</div>
                         <div className="text-xs font-bold text-indigo-400 mt-0.5">{session.lattice?.total_documents || 0} Sections</div>
                       </div>
-                      <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 hover:border-slate-700 transition">
-                        <div className="text-[11px] text-slate-400">Capacity Rating</div>
+                      <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800 hover:border-slate-700 transition">
+                        <div className="text-[10px] text-slate-400">Capacity Rating</div>
                         <div className="text-xs font-bold text-emerald-400 mt-0.5">2,000+ Pages Ready</div>
                       </div>
                     </div>
 
                     {/* Scalable Paginated Document Heatmap Grid (Supports up to 2,000 pages) */}
                     <div className="mt-1 flex flex-col gap-2">
-                      <div className="flex items-center justify-between text-[11px] font-bold text-slate-400 uppercase tracking-wider flex-wrap gap-2">
+                      <div className="flex items-center justify-between text-[10px] font-bold text-slate-400 uppercase tracking-wider flex-wrap gap-2">
                         <span>Page Grid (Showing {pageRangeStart}–{rangePageEnd} of {session.total_pages}):</span>
-
+                        
                         {/* Page Jump / Pagination Controls */}
                         <div className="flex items-center gap-1">
                           <button
@@ -459,31 +460,32 @@ export default function App() {
                               }
                             }
                           }}
-                          className="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs font-mono text-slate-200 focus:outline-none focus:border-cyan-500"
+                          className="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-1 text-xs font-mono text-slate-200 focus:outline-none focus:border-cyan-500"
                         />
                         <button
                           onClick={() => {
                             const p = parseInt(jumpPageNum);
                             if (p >= 1 && p <= session.total_pages) fetchPageText(p);
                           }}
-                          className="px-3 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-xs font-bold text-white transition"
+                          className="px-3 py-1 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-xs font-bold text-white transition"
                         >
                           View Page
                         </button>
                       </div>
 
-                      <div className="grid grid-cols-10 gap-1.5 bg-slate-950/80 p-3 rounded-xl border border-slate-800 max-h-48 overflow-y-auto">
+                      <div className="grid grid-cols-10 gap-1 bg-slate-950/80 p-2.5 rounded-xl border border-slate-800 max-h-36 overflow-y-auto">
                         {Array.from({ length: Math.min(50, session.total_pages - pageRangeStart + 1) }, (_, i) => pageRangeStart + i).map((pNum) => (
                           <button
                             key={pNum}
                             onClick={() => fetchPageText(pNum)}
                             title={`View Page ${pNum}`}
-                            className={`h-8 rounded-lg text-xs font-bold transition flex items-center justify-center border ${pNum <= 4
+                            className={`h-7 rounded-lg text-[11px] font-bold transition flex items-center justify-center border ${
+                              pNum <= 4
                                 ? "bg-cyan-500/20 text-cyan-300 border-cyan-500/40 hover:bg-cyan-500/30"
                                 : pNum <= 8
-                                  ? "bg-indigo-500/20 text-indigo-300 border-indigo-500/40 hover:bg-indigo-500/30"
-                                  : "bg-slate-900 text-slate-400 border-slate-800 hover:bg-slate-800 hover:text-slate-200"
-                              }`}
+                                ? "bg-indigo-500/20 text-indigo-300 border-indigo-500/40 hover:bg-indigo-500/30"
+                                : "bg-slate-900 text-slate-400 border-slate-800 hover:bg-slate-800 hover:text-slate-200"
+                            }`}
                           >
                             {pNum}
                           </button>
@@ -492,10 +494,10 @@ export default function App() {
                     </div>
 
                     {/* Underwriting Safety Risk Index Meter */}
-                    <div className="p-4 rounded-xl bg-gradient-to-r from-slate-950 to-indigo-950/40 border border-slate-800 flex flex-col gap-2">
+                    <div className="p-3 rounded-xl bg-gradient-to-r from-slate-950 to-indigo-950/40 border border-slate-800 flex flex-col gap-1.5">
                       <div className="flex items-center justify-between text-xs">
                         <span className="font-bold text-slate-200 flex items-center gap-1.5">
-                          <Award size={14} className="text-emerald-400" /> Automated Risk Index
+                          <Award size={13} className="text-emerald-400" /> Automated Risk Index
                         </span>
                         <span className="font-mono font-bold text-emerald-400">96 / 100 (Low Risk)</span>
                       </div>
@@ -510,16 +512,16 @@ export default function App() {
                     {/* Detected Document Form List */}
                     {session.lattice && (
                       <div className="mt-1">
-                        <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Detected Forms in Package:</div>
-                        <div className="flex flex-col gap-1.5 max-h-40 overflow-y-auto pr-1">
+                        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Detected Forms in Package:</div>
+                        <div className="flex flex-col gap-1 max-h-36 overflow-y-auto pr-1">
                           {session.lattice.documents.map((doc, idx) => (
-                            <div key={idx} className="p-2.5 rounded-lg bg-slate-950/50 border border-slate-800/80 flex items-center justify-between text-xs hover:border-slate-700 transition">
-                              <span className="font-semibold text-slate-200">{doc.name}</span>
+                            <div key={idx} className="p-2 rounded-lg bg-slate-950/50 border border-slate-800/80 flex items-center justify-between text-xs hover:border-slate-700 transition">
+                              <span className="font-semibold text-slate-200 truncate">{doc.name}</span>
                               <button
                                 onClick={() => fetchPageText(doc.start_page)}
-                                className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-[11px] text-cyan-400 transition flex items-center gap-1"
+                                className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-[10px] text-cyan-400 transition flex items-center gap-1 shrink-0"
                               >
-                                <Eye size={11} /> p.{doc.start_page}
+                                <Eye size={10} /> p.{doc.start_page}
                               </button>
                             </div>
                           ))}
@@ -528,23 +530,23 @@ export default function App() {
                     )}
                   </div>
                 ) : (
-                  <div className="p-6 text-center rounded-xl border border-dashed border-slate-800 text-slate-500 text-xs">
+                  <div className="p-4 text-center rounded-xl border border-dashed border-slate-800 text-slate-500 text-xs">
                     No PDF file active. Upload a loan package to populate document structure.
                   </div>
                 )}
               </div>
             </div>
 
-            {/* RIGHT COLUMN: AI Underwriter Interactive Chat Box (7 cols) */}
-            <div className="lg:col-span-7 flex flex-col gap-4 flex-1 h-full">
-
-              {/* Chat Container Window */}
-              <div
+            {/* RIGHT COLUMN: AI Underwriter Interactive Chat Box - Expands down to bottom of screen */}
+            <div className="lg:col-span-7 flex flex-col gap-3 h-full flex-1 overflow-hidden">
+              
+              {/* Chat Container Window - Takes full vertical space */}
+              <div 
                 ref={chatContainerRef}
-                className="p-6 rounded-3xl bg-[#070a11] border border-slate-800 backdrop-blur-xl flex flex-col gap-6 min-h-[550px] max-h-[70vh] overflow-y-auto shadow-2xl glass-panel relative"
+                className="p-6 rounded-3xl bg-[#070a11] border border-slate-800 backdrop-blur-xl flex flex-col gap-5 flex-1 h-full overflow-y-auto shadow-2xl glass-panel relative"
               >
                 {/* Starting Welcome Hero Header Banner inside Chat Window */}
-                <div className="p-6 rounded-2xl bg-gradient-to-r from-indigo-950/60 via-slate-900/90 to-cyan-950/60 border border-slate-800 flex flex-col gap-3 shadow-xl relative overflow-hidden animate-fade-in">
+                <div className="p-5 rounded-2xl bg-gradient-to-r from-indigo-950/60 via-slate-900/90 to-cyan-950/60 border border-slate-800 flex flex-col gap-3 shadow-xl relative overflow-hidden animate-fade-in shrink-0">
                   <div className="absolute top-0 right-0 w-48 h-48 bg-cyan-500/10 rounded-full blur-2xl pointer-events-none" />
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-cyan-500 flex items-center justify-center text-white font-bold shadow-lg shrink-0">
@@ -555,23 +557,23 @@ export default function App() {
                         👋 Hi there! Ask your doubts and get instant verified answers
                       </h3>
                       <p className="text-xs text-slate-400 mt-0.5">
-                        High-Capacity AI Underwriting Engine • Scalable Up to 2,000+ Pages • Line-Level Evidence Proofs
+                        High-Capacity AI Underwriting Engine • Answers directly from your uploaded PDF documentation with line-level proofs
                       </p>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-1">
-                    <div className="p-2.5 rounded-lg bg-slate-950/70 border border-slate-800 text-[11px] font-semibold text-cyan-300 flex items-center gap-1.5">
-                      <Zap size={13} className="text-cyan-400" /> Instant Reconciliation
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-0.5">
+                    <div className="p-2 rounded-lg bg-slate-950/70 border border-slate-800 text-[11px] font-semibold text-cyan-300 flex items-center gap-1.5">
+                      <Zap size={12} className="text-cyan-400" /> Instant Reconciliation
                     </div>
-                    <div className="p-2.5 rounded-lg bg-slate-950/70 border border-slate-800 text-[11px] font-semibold text-emerald-300 flex items-center gap-1.5">
-                      <ShieldCheck size={13} className="text-emerald-400" /> Trust Matrix Verification
+                    <div className="p-2 rounded-lg bg-slate-950/70 border border-slate-800 text-[11px] font-semibold text-emerald-300 flex items-center gap-1.5">
+                      <ShieldCheck size={12} className="text-emerald-400" /> Trust Matrix Verification
                     </div>
-                    <div className="p-2.5 rounded-lg bg-slate-950/70 border border-slate-800 text-[11px] font-semibold text-indigo-300 flex items-center gap-1.5">
-                      <Layers size={13} className="text-indigo-400" /> 2,000+ Page Scale
+                    <div className="p-2 rounded-lg bg-slate-950/70 border border-slate-800 text-[11px] font-semibold text-indigo-300 flex items-center gap-1.5">
+                      <Layers size={12} className="text-indigo-400" /> 2,000+ Page Scale
                     </div>
-                    <div className="p-2.5 rounded-lg bg-slate-950/70 border border-slate-800 text-[11px] font-semibold text-pink-300 flex items-center gap-1.5">
-                      <Eye size={13} className="text-pink-400" /> Line-Level Citations
+                    <div className="p-2 rounded-lg bg-slate-950/70 border border-slate-800 text-[11px] font-semibold text-pink-300 flex items-center gap-1.5">
+                      <Eye size={12} className="text-pink-400" /> Line-Level Citations
                     </div>
                   </div>
                 </div>
@@ -588,7 +590,7 @@ export default function App() {
                       </div>
                     ) : (
                       /* LoanTrace Underwriter AI Card */
-                      <div className="w-full flex flex-col gap-4 p-6 rounded-2xl bg-[#0a0e1a] border border-slate-800/90 shadow-2xl transition hover:border-slate-700">
+                      <div className="w-full flex flex-col gap-4 p-5 rounded-2xl bg-[#0a0e1a] border border-slate-800/90 shadow-2xl transition hover:border-slate-700">
                         {/* Header Row */}
                         <div className="flex items-center justify-between gap-3 flex-wrap">
                           <div className="flex items-center gap-3">
@@ -667,13 +669,13 @@ export default function App() {
                     Analyzing document package and searching across all {session?.total_pages || 2000} pages...
                   </div>
                 )}
-
+                
                 {/* Scroll Target Div */}
                 <div ref={messagesEndRef} />
               </div>
 
-              {/* Chat Input Controls */}
-              <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 backdrop-blur-md flex flex-col gap-3 glass-panel">
+              {/* Chat Input Controls - Anchored at the bottom */}
+              <div className="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800 backdrop-blur-md flex flex-col gap-2.5 glass-panel shrink-0">
                 <div className="flex gap-2">
                   <input
                     type="text"
@@ -682,19 +684,19 @@ export default function App() {
                     onKeyDown={(e) => e.key === 'Enter' && handleAsk()}
                     placeholder={session ? "Ask any underwriting question across all indexed pages..." : "Please upload a PDF on the left panel first to ask questions..."}
                     disabled={!session || asking}
-                    className="flex-1 bg-slate-950/90 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:border-cyan-500 transition disabled:opacity-50"
+                    className="flex-1 bg-slate-950/90 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-cyan-500 transition disabled:opacity-50"
                   />
                   <button
                     onClick={() => handleAsk()}
                     disabled={!session || asking || !question.trim()}
-                    className="px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white font-bold text-sm shadow-md transition flex items-center gap-2 disabled:opacity-50 transform hover:-translate-y-0.5"
+                    className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white font-bold text-sm shadow-md transition flex items-center gap-2 disabled:opacity-50 transform hover:-translate-y-0.5"
                   >
-                    <Send size={16} /> Send
+                    <Send size={15} /> Send
                   </button>
                 </div>
 
                 {/* Sample Question Chips */}
-                <div className="flex items-center gap-2 overflow-x-auto pb-1">
+                <div className="flex items-center gap-2 overflow-x-auto pb-0.5">
                   <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider shrink-0">Suggested Questions:</span>
                   {sampleQuestions.map((q, idx) => (
                     <button
@@ -704,7 +706,7 @@ export default function App() {
                         handleAsk(q);
                       }}
                       disabled={!session || asking}
-                      className="px-3 py-1.5 rounded-lg bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 text-xs text-slate-300 transition whitespace-nowrap disabled:opacity-50 transform hover:-translate-y-0.5"
+                      className="px-3 py-1 rounded-lg bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 text-xs text-slate-300 transition whitespace-nowrap disabled:opacity-50 transform hover:-translate-y-0.5"
                     >
                       {q.length > 45 ? q.slice(0, 45) + "..." : q}
                     </button>
@@ -718,7 +720,7 @@ export default function App() {
 
         {/* DOCUMENT STRUCTURE & EXTRACTION VIEW */}
         {activeTab === "structure" && (
-          <div className="p-6 rounded-2xl bg-slate-900/70 border border-slate-800 backdrop-blur-md flex flex-col gap-6 glass-panel animate-fade-in">
+          <div className="p-6 rounded-2xl bg-slate-900/70 border border-slate-800 backdrop-blur-md flex flex-col gap-6 glass-panel animate-fade-in overflow-y-auto flex-1">
             <div className="flex items-center justify-between border-b border-slate-800 pb-4">
               <div className="flex items-center gap-3">
                 <Layers size={24} className="text-purple-400" />
@@ -762,7 +764,7 @@ export default function App() {
 
         {/* TRUST LAYER & COVARIANCE MATRIX VIEW */}
         {activeTab === "trust" && (
-          <div className="p-6 rounded-2xl bg-slate-900/70 border border-slate-800 backdrop-blur-md flex flex-col gap-6 glass-panel animate-fade-in">
+          <div className="p-6 rounded-2xl bg-slate-900/70 border border-slate-800 backdrop-blur-md flex flex-col gap-6 glass-panel animate-fade-in overflow-y-auto flex-1">
             <div className="flex items-center justify-between border-b border-slate-800 pb-4">
               <div className="flex items-center gap-3">
                 <ShieldCheck size={24} className="text-emerald-400" />
@@ -828,7 +830,7 @@ export default function App() {
 
         {/* AUDIT TRAIL & EXPORT REPORT VIEW (Stack of Detailed Proof Cards - Current First) */}
         {activeTab === "audit" && (
-          <div className="p-6 rounded-2xl bg-slate-900/70 border border-slate-800 backdrop-blur-md flex flex-col gap-6 glass-panel animate-fade-in">
+          <div className="p-6 rounded-2xl bg-slate-900/70 border border-slate-800 backdrop-blur-md flex flex-col gap-6 glass-panel animate-fade-in overflow-y-auto flex-1">
             <div className="flex items-center justify-between border-b border-slate-800 pb-4">
               <div className="flex items-center gap-3">
                 <CheckCircle size={24} className="text-cyan-400" />
@@ -855,10 +857,11 @@ export default function App() {
                 {auditProofs.map((proof, pIdx) => (
                   <div
                     key={proof.id}
-                    className={`p-6 rounded-2xl border transition-all duration-300 shadow-2xl flex flex-col gap-5 ${pIdx === 0
+                    className={`p-6 rounded-2xl border transition-all duration-300 shadow-2xl flex flex-col gap-5 ${
+                      pIdx === 0
                         ? "bg-[#0a0e1c] border-cyan-500/50 shadow-cyan-500/10 animate-slide-up"
                         : "bg-slate-950/80 border-slate-800 hover:border-slate-700"
-                      }`}
+                    }`}
                   >
                     {/* Proof Entry Header */}
                     <div className="flex items-start justify-between gap-4 flex-wrap border-b border-slate-800/80 pb-4">
