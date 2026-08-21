@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { 
-  FileText, Upload, Cpu, Database, ShieldCheck, HelpCircle, 
+import {
+  FileText, Upload, Cpu, Database, ShieldCheck, HelpCircle,
   AlertTriangle, CheckCircle, Search, Layers, RefreshCw, Eye, ArrowRight,
   Send, User, Bot, Sparkles, FileSpreadsheet, CheckSquare, Download, ChevronDown, ChevronUp,
   Activity, Award, Zap, Printer, X, Copy, Check, MessageSquare
@@ -121,7 +121,7 @@ export default function App() {
       setFile(fileToUpload);
       setSession(data);
       setPageRangeStart(1);
-      
+
       setMessages((prev) => [
         ...prev,
         {
@@ -190,7 +190,7 @@ export default function App() {
       }
 
       const data = await res.json();
-      
+
       const botMsg = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
@@ -216,11 +216,11 @@ export default function App() {
               const pData = await pRes.json();
               rawText = pData.text || "";
             }
-          } catch (e) {}
+          } catch (e) { }
 
           const lines = rawText.split("\n");
-          const qWords = targetQ.toLowerCase().split(/\s+/).filter(w => w.length > 3 && !["what","where","which","how","confirm"].includes(w));
-          
+          const qWords = targetQ.toLowerCase().split(/\s+/).filter(w => w.length > 3 && !["what", "where", "which", "how", "confirm"].includes(w));
+
           const lineHighlights = [];
           lines.forEach((lineStr, idx) => {
             const lLower = lineStr.toLowerCase();
@@ -339,11 +339,10 @@ export default function App() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 relative ${
-                activeTab === tab.id
+              className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 relative ${activeTab === tab.id
                   ? "bg-gradient-to-r from-cyan-500/20 to-indigo-500/20 text-cyan-300 border border-cyan-500/40 shadow-lg shadow-cyan-500/10 scale-102"
                   : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/40"
-              }`}
+                }`}
             >
               <Icon size={15} /> {tab.label}
               {activeTab === tab.id && (
@@ -356,11 +355,11 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="max-w-[1600px] w-full mx-auto p-6 flex flex-col gap-6 flex-1">
-        
+
         {/* HOME & AI CONVERSATION VIEW (Left: Upload Panel | Right: AI Chat Box) */}
         {activeTab === "home" && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 items-start">
-            
+
             {/* LEFT COLUMN: PDF Upload & Document Ingestion Panel (5 cols) */}
             <div className="lg:col-span-5 flex flex-col gap-6">
               {/* PDF Upload Hero Box */}
@@ -425,7 +424,7 @@ export default function App() {
                     <div className="mt-1 flex flex-col gap-2">
                       <div className="flex items-center justify-between text-[11px] font-bold text-slate-400 uppercase tracking-wider flex-wrap gap-2">
                         <span>Page Grid (Showing {pageRangeStart}–{rangePageEnd} of {session.total_pages}):</span>
-                        
+
                         {/* Page Jump / Pagination Controls */}
                         <div className="flex items-center gap-1">
                           <button
@@ -479,13 +478,12 @@ export default function App() {
                             key={pNum}
                             onClick={() => fetchPageText(pNum)}
                             title={`View Page ${pNum}`}
-                            className={`h-8 rounded-lg text-xs font-bold transition flex items-center justify-center border ${
-                              pNum <= 4
+                            className={`h-8 rounded-lg text-xs font-bold transition flex items-center justify-center border ${pNum <= 4
                                 ? "bg-cyan-500/20 text-cyan-300 border-cyan-500/40 hover:bg-cyan-500/30"
                                 : pNum <= 8
-                                ? "bg-indigo-500/20 text-indigo-300 border-indigo-500/40 hover:bg-indigo-500/30"
-                                : "bg-slate-900 text-slate-400 border-slate-800 hover:bg-slate-800 hover:text-slate-200"
-                            }`}
+                                  ? "bg-indigo-500/20 text-indigo-300 border-indigo-500/40 hover:bg-indigo-500/30"
+                                  : "bg-slate-900 text-slate-400 border-slate-800 hover:bg-slate-800 hover:text-slate-200"
+                              }`}
                           >
                             {pNum}
                           </button>
@@ -539,9 +537,9 @@ export default function App() {
 
             {/* RIGHT COLUMN: AI Underwriter Interactive Chat Box (7 cols) */}
             <div className="lg:col-span-7 flex flex-col gap-4 flex-1 h-full">
-              
+
               {/* Chat Container Window */}
-              <div 
+              <div
                 ref={chatContainerRef}
                 className="p-6 rounded-3xl bg-[#070a11] border border-slate-800 backdrop-blur-xl flex flex-col gap-6 min-h-[550px] max-h-[70vh] overflow-y-auto shadow-2xl glass-panel relative"
               >
@@ -669,7 +667,7 @@ export default function App() {
                     Analyzing document package and searching across all {session?.total_pages || 2000} pages...
                   </div>
                 )}
-                
+
                 {/* Scroll Target Div */}
                 <div ref={messagesEndRef} />
               </div>
@@ -857,11 +855,10 @@ export default function App() {
                 {auditProofs.map((proof, pIdx) => (
                   <div
                     key={proof.id}
-                    className={`p-6 rounded-2xl border transition-all duration-300 shadow-2xl flex flex-col gap-5 ${
-                      pIdx === 0
+                    className={`p-6 rounded-2xl border transition-all duration-300 shadow-2xl flex flex-col gap-5 ${pIdx === 0
                         ? "bg-[#0a0e1c] border-cyan-500/50 shadow-cyan-500/10 animate-slide-up"
                         : "bg-slate-950/80 border-slate-800 hover:border-slate-700"
-                    }`}
+                      }`}
                   >
                     {/* Proof Entry Header */}
                     <div className="flex items-start justify-between gap-4 flex-wrap border-b border-slate-800/80 pb-4">
