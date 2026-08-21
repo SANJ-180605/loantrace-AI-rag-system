@@ -70,6 +70,7 @@ def root():
     return {"message": "LoanTrace AI backend is running"}
 
 @app.post("/upload")
+@app.post("/api/upload")
 async def upload_pdf(file: UploadFile = File(...)):
     if not file.filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Please upload a PDF file.")
@@ -125,6 +126,7 @@ async def upload_pdf(file: UploadFile = File(...)):
     }
 
 @app.get("/session/{session_id}")
+@app.get("/api/session/{session_id}")
 def get_session(session_id: str):
     session = SESSIONS.get(session_id)
     if not session:
@@ -140,6 +142,7 @@ def get_session(session_id: str):
     }
 
 @app.get("/session/{session_id}/page/{page_num}")
+@app.get("/api/session/{session_id}/page/{page_num}")
 def get_page_text(session_id: str, page_num: int):
     session = SESSIONS.get(session_id)
     if not session:
@@ -152,6 +155,7 @@ def get_page_text(session_id: str, page_num: int):
     }
 
 @app.post("/ask")
+@app.post("/api/ask")
 def ask_question(payload: QuestionRequest):
     session = SESSIONS.get(payload.session_id)
     if not session:
